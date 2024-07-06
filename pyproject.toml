@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "recruitment-test-data-engineering"
+version = "0.1.0"
+description = ""
+authors = ["RArielAlonso <rariel.alonso@gmail.com>"]
+readme = "README.md"
+packages = [
+    { include = "src"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "^2.2.2"
+sqlalchemy = "^2.0.31"
+pymysql = "^1.1.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

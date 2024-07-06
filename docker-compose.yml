@@ -4,6 +4,7 @@ services:
   database:
     image: mysql:8.0
     platform: linux/amd64
+    container_name: db-test
     command:
       - "--default-authentication-plugin=mysql_native_password"
     environment:
@@ -11,49 +12,35 @@ services:
       - MYSQL_DATABASE=codetest
       - MYSQL_USER=codetest
       - MYSQL_PASSWORD=swordfish
+      - MYSQL_CHARSET=utf8mb4
+      - MYSQL_COLLATION=utf8mb4_unicode_ci
     ports:
       - "3306:3306"
+    volumes:
+      - "./SQL/init.sql:/docker-entrypoint-initdb.d/1.sql"
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    networks:
+      - nt-test
 
-  example-c:
-    image: example-c
-    build: images/example-c
-    command: ["./example"]
+  etl-python:
+    container_name: etl-python
+    build:
+      context: .
+      dockerfile: src/ingest/Dockerfile
+    environment:
+      - PYTHONPATH=/app
     volumes:
       - ./data:/data
+    command: ["poetry", "run", "python", "src/ingest/ingest_main.py"]
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - nt-test
 
-  example-node:
-    image: example-node
-    build: images/example-node
-    command: ["./example.js"]
-    volumes:
-      - ./data:/data
-
-  example-python:
-    image: example-python
-    build: images/example-python
-    command: ["./example.py"]
-    volumes:
-      - ./data:/data
-
-  example-r:
-    image: example-r
-    build: images/example-r
-    command: ["./example.R"]
-    volumes:
-      - ./data:/data
-
-  example-ruby:
-    image: example-ruby
-    build: images/example-ruby
-    command: ["./example.rb"]
-    volumes:
-      - ./data:/data
-
-  example-swift:
-    image: example-swift
-    platform: linux/amd64
-    build: images/example-swift
-    command: ["swift", "run"]
-    volumes:
-      - ./data:/data
+networks:
+  nt-test:
