@@ -35,12 +35,41 @@ services:
       - PYTHONPATH=/app
     volumes:
       - ./data:/data
-    command: ["poetry", "run", "python", "src/ingest/ingest_main.py"]
     depends_on:
       database:
         condition: service_healthy
     networks:
       - nt-test
+    
+  output-python:
+    container_name: output-python
+    build:
+      context: .
+      dockerfile: src/output/Dockerfile
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./data:/data
+    networks:
+      - nt-test
+  
+  admin:
+    image: adminer
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      - nt-test
+
+volumes:
+  output-python:
+  etl-python:
 
 networks:
   nt-test:

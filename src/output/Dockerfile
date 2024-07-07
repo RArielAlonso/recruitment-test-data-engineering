@@ -9,4 +9,4 @@ RUN poetry install --no-root
 
 ENV PYTHONPATH="/app"
 
-ENTRYPOINT ["poetry", "run", "python", "src/ingest/ingest_main.py"]
+ENTRYPOINT ["poetry", "run", "python", "src/output/output.py"]
